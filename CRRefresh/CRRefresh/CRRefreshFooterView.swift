@@ -135,7 +135,7 @@ open class CRRefreshFooterView: CRRefreshComponent {
         
         if scrollView.contentSize.height + scrollView.contentInset.top > scrollView.bounds.size.height {
             // 内容超过一个屏幕 计算公式，判断是不是在拖在到了底部
-            if scrollView.contentSize.height - scrollView.contentOffset.y + scrollView.contentInset.bottom  <= scrollView.bounds.size.height {
+            if scrollView.contentSize.height - scrollView.contentOffset.y + scrollView.contentInset.bottom  <= scrollView.bounds.size.height, scrollView.isDragging {
                 state = .refreshing
                 beginRefreshing()
             }
