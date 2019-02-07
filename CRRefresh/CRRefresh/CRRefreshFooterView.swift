@@ -62,7 +62,6 @@ open class CRRefreshFooterView: CRRefreshComponent {
         DispatchQueue.main.async { [weak self] in
             guard let weakSelf = self else { return }
             weakSelf.scrollViewInsets = weakSelf.scrollView?.contentInset ?? UIEdgeInsets.zero
-            weakSelf.scrollView?.contentInset.bottom = weakSelf.scrollViewInsets.bottom + weakSelf.bounds.size.height
             var rect = weakSelf.frame
             rect.origin.y = weakSelf.scrollView?.contentSize.height ?? 0.0
             weakSelf.frame = rect
@@ -75,6 +74,8 @@ open class CRRefreshFooterView: CRRefreshComponent {
         animator.refreshBegin(view: self)
         let x = scrollView.contentOffset.x
         let y = max(0.0, scrollView.contentSize.height - scrollView.bounds.size.height + scrollView.contentInset.bottom)
+        scrollView.contentInset.bottom = scrollViewInsets.bottom + bounds.size.height
+        
         UIView.animate(withDuration: 0.3, delay: 0.0, options: .curveLinear, animations: {
             scrollView.contentOffset = .init(x: x, y: y)
         }, completion: { (animated) in
@@ -92,6 +93,7 @@ open class CRRefreshFooterView: CRRefreshComponent {
             }
             super.stop()
             self.animator.refreshEnd(view: self, finish: true)
+            scrollView.contentInset.bottom = self.scrollViewInsets.bottom
         })
         if scrollView.isDecelerating {
             var contentOffset = scrollView.contentOffset
@@ -156,5 +158,5 @@ open class CRRefreshFooterView: CRRefreshComponent {
     open func resetNoMoreData() {
         noMoreData = false
     }
-
+    
 }
