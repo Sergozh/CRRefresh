@@ -93,7 +93,9 @@ open class CRRefreshFooterView: CRRefreshComponent {
             }
             super.stop()
             self.animator.refreshEnd(view: self, finish: true)
-            scrollView.contentInset.bottom = self.scrollViewInsets.bottom
+            UIView.animate(withDuration: CRRefreshComponent.animationDuration, animations: {
+                scrollView.contentInset.bottom = self.scrollViewInsets.bottom
+            })
         })
         if scrollView.isDecelerating {
             var contentOffset = scrollView.contentOffset
