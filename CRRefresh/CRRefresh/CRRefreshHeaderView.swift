@@ -43,15 +43,6 @@ open class CRRefreshHeaderView: CRRefreshComponent {
         self.animator = animator
     }
     
-    open override func didMoveToSuperview() {
-        super.didMoveToSuperview()
-        DispatchQueue.main.async { [weak self] in
-            guard let weakSelf = self else { return }
-            weakSelf.scrollViewBounces = weakSelf.scrollView?.bounces ?? true
-
-        }
-    }
-    
     open override func start() {
         guard let scrollView = scrollView else { return }
         // 动画的时候先忽略监听
@@ -66,7 +57,7 @@ open class CRRefreshHeaderView: CRRefreshComponent {
         insets.top          += animator.execute
         insetTDelta          = -animator.execute
         holdInsetTDelta      = -(animator.execute - animator.hold)
-        UIView.animate(withDuration: CRRefreshComponent.animationDuration, animations: { 
+        UIView.animate(withDuration: CRRefreshComponent.animationDuration, animations: {
             scrollView.contentOffset.y = self.previousOffsetY
             scrollView.contentInset    = insets
             scrollView.contentOffset.y = -insets.top
@@ -90,15 +81,24 @@ open class CRRefreshHeaderView: CRRefreshComponent {
             }
         }
         func beginStop() {
-            guard isEnding == false, isRefreshing else {
+            guard self != nil, isEnding == false, isRefreshing else {
                 return
             }
             isEnding = true
             // 结束动画
             animator.refreshEnd(view: self, finish: false)
             // 调整scrollView的contentInset
-            UIView.animate(withDuration: CRRefreshComponent.animationDuration, animations: {
-                scrollView.contentInset.top += self.insetTDelta - self.holdInsetTDelta
+            let insetTDelta = self.insetTDelta ?? 0
+            let holdInsetTDelta = self.holdInsetTDelta ?? 0
+            var contentInsets = scrollView.contentInset
+            contentInsets.top += insetTDelta - holdInsetTDelta
+            
+            UIView.animate(withDuration: CRRefreshComponent.animationDuration, animations: { [weak scrollView] in
+                guard let scrollView = scrollView else {
+                    return
+                }
+                
+                scrollView.contentInset = contentInsets
             }) { (finished) in
                 DispatchQueue.main.async {
                     self.state = .idle
@@ -106,12 +106,13 @@ open class CRRefreshHeaderView: CRRefreshComponent {
                     self.animator.refreshEnd(view: self, finish: true)
                     self.ignoreObserver(false)
                     self.isEnding = false
+                    scrollView.bounces = self.scrollViewBounces
                 }
             }
         }
         if animator.endDelay > 0 {
             if self.isEnding == false {
-                let delay =  DispatchTimeInterval.milliseconds(Int(animator.endDelay * 1000))
+                let delay = DispatchTimeInterval.milliseconds(Int(animator.endDelay * 1000))
                 DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: {
                     beginStop()
                 })
@@ -120,7 +121,7 @@ open class CRRefreshHeaderView: CRRefreshComponent {
             beginStop()
         }
     }
-
+    
     open override func offsetChange(change: [NSKeyValueChangeKey : Any]?) {
         guard let scrollView = scrollView else { return }
         super.offsetChange(change: change)
