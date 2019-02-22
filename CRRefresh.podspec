@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
 
   s.name          = "CRRefresh"
-  s.version       = "1.1.5"
+  s.version       = "1.1.6"
   s.summary       = "An easy way to use pull-to-refresh"
   s.homepage      = "https://github.com/CRAnimation/CRRefresh"
   s.license       = 'MIT'
