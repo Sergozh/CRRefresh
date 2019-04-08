@@ -81,15 +81,15 @@ open class CRRefreshHeaderView: CRRefreshComponent {
             }
         }
         func beginStop() {
-            guard self != nil, isEnding == false, isRefreshing else {
+            guard isEnding == false, isRefreshing else {
                 return
             }
             isEnding = true
             // 结束动画
             animator.refreshEnd(view: self, finish: false)
             // 调整scrollView的contentInset
-            let insetTDelta = self.insetTDelta ?? 0
-            let holdInsetTDelta = self.holdInsetTDelta ?? 0
+            let insetTDelta = self.insetTDelta
+            let holdInsetTDelta = self.holdInsetTDelta
             var contentInsets = scrollView.contentInset
             contentInsets.top += insetTDelta - holdInsetTDelta
             
